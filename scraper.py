@@ -33,19 +33,25 @@ def login(username, password):
     login_info = {
         "IDToken1": username,
         "IDToken2": password,
-        "login_uri": "/login/UI/Login",
-        "login_method": "GET",
-        "IDButton": "Log In",
-        "encoded": "false",
-        "gx_charset": "UTF-8"
+
     }
 
     # remember session to stay logged in
     scrape_session = requests.session()
 
-    # login to registration site on scrape_session
+    # login to registration site on scrape_session, goes to redirect page
     scrape_session.get(login_url)
     login_attempt = scrape_session.post(login_url, data=login_info, headers=dict(referer=login_url))
 
-    # TODO fix redirect, right now redirects to another POST form that has a submission
-    print(login_attempt.text)
+    # gets form info for redirect, LARES is needed for redirect, no clue what LARES means
+    redirect_soup = BeautifulSoup(login_attempt.content, "html.parser")
+    lares_value = redirect_soup.find("input", {"name": "LARES"})["value"]
+    lares_data = {
+        "LARES": lares_value,
+    }
+    # go through redirect page
+    scrape_session.get(login_attempt.url)
+    login_done = scrape_session.post(login_attempt.url, data=lares_data, headers=dict(referer=login_url))
+
+    test = scrape_session.get("https://utdirect.utexas.edu/apps/registrar/course_schedule/20179/")
+    print(test.text)
