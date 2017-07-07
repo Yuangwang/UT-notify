@@ -1,6 +1,5 @@
 import requests
 import time
-import lxml
 from bs4 import BeautifulSoup
 
 
@@ -10,21 +9,27 @@ from bs4 import BeautifulSoup
 
 # fun fact UT has 402 pages in their course directory
 
+# scrapes the entire ut catalog
 def scrape_catalog(session):
-    # TODO finish this function, right now just scrapes first page
-    start_page = "https://utdirect.utexas.edu/apps/registrar/course_schedule/20179/results/?ccyys=20179&" \
+
+    # root page to be scraped
+    next_page = "https://utdirect.utexas.edu/apps/registrar/course_schedule/20179/results/?ccyys=20179&" \
                  "search_type_main=UNIQUE&unique_number=&start_unique=00000&end_unique=99999"
-    scrape_page(session, start_page)
+
+    # tests to see if the end has been reached, if not keeps scraping
+    while next_page is not None:
+        next_page = scrape_page(session, next_page)
+        time.sleep(1)
 
 
-# search directory for unique numbers 00000 to 99999
+# searches a single page for the class data, returns the next page to be searched, returns None if last page
 def scrape_page(session, page):
     # full catalog in main_page
     main_page = session.get(page)
-    soup = BeautifulSoup(main_page.content, "lxml")
+    page_soup = BeautifulSoup(main_page.content, "lxml")
 
     # go through each row of the catalog
-    for row in soup.find_all("tr"):
+    for row in page_soup.find_all("tr"):
 
         # unique check only allows the class to be stored once its data is compeltely scraped
         unique_check = False
@@ -57,7 +62,14 @@ def scrape_page(session, page):
         # called when a single class has all of its info and stores its info
         if unique_check is True:
             course = CourseInfo(unique, day, hour, room, professor, status, name)
-            course.store()
+            print(unique+day+hour+room+professor+status+name)
+
+    # look for the next page to crawl
+    try:
+        test = page_soup.find("a", {"id": "next_nav_link"})["href"]
+        return "https://utdirect.utexas.edu/apps/registrar/course_schedule/20179/results/" + test
+    except TypeError:
+        return None
 
 
 # contains the info for the course
