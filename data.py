@@ -19,8 +19,7 @@ def current_unique_data(cur):
 # updates the existing class
 # TODO needs more testing still
 def update_class(course, cur, con):
-    cur.execute("UPDATE course SET day=%s, hour=%s, room=%s, professor=%s, status=%s, name=%s "
-                "WHERE id=(%s)",
+    cur.execute("UPDATE course SET day=%s, hour=%s, room=%s, professor=%s, status=%s, name=%s WHERE id=%s",
                 (course.day, course.hour, course.room, course.professor, course.status, course.name, course.unique_num))
     con.commit()
 
@@ -31,3 +30,13 @@ def insert_class(course, cur, con):
                 "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (course.unique_num, course.day, course.hour, course.room, course.professor, course.status, course.name))
     con.commit()
+
+
+# deletes all extra data that no longer exists
+def delete_extra(db_set, online_set, cur, con):
+    # list of values in either sets but not both
+    extras = list(db_set ^ online_set)
+    for course in extras:
+        cur.execute("DELETE FROM course WHERE id=%s", (course,))
+    con.commit()
+

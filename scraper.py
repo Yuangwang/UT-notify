@@ -32,14 +32,16 @@ def scrape_catalog(session):
 
     # tests to see if the end has been reached, if not keeps scraping
     while next_page is not None:
-        print(online_uniques)
         next_page = scrape_page(session, next_page, db_set, online_uniques, cur, con)
         time.sleep(1)
 
     # convert into set for easier compare
     online_set = set(online_uniques)
-    # TODO write function
-    data.delete_extra(db_set, online_set)
+
+    # deletes extra courses that no longer exist
+    data.delete_extra(db_set, online_set, cur, con)
+
+    # close connections and cursor
     cur.close()
     con.close()
 
