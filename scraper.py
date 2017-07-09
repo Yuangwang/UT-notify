@@ -1,6 +1,7 @@
 import requests
 import time
 import data
+import psycopg2
 from bs4 import BeautifulSoup
 
 '''All functions in this file contribute to the scraping of data to insert into my own database'''
@@ -15,8 +16,15 @@ from bs4 import BeautifulSoup
 
 # scrapes the entire ut catalog
 def scrape_catalog(session):
+    # opens connection and cursor for future use
+    con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='29900770wei'")
+    cur = con.cursor()
+
     # store current database values in a set for later reference to see if values have changed
-    db_set = data.current_unique_data()
+    db_set = data.current_unique_data(cur)
+
+    # used later to check for which unique numebers to delete
+    online_uniques = []
 
     # root page to be scraped
     next_page = "https://utdirect.utexas.edu/apps/registrar/course_schedule/20179/results/?ccyys=20179&" \
@@ -24,14 +32,22 @@ def scrape_catalog(session):
 
     # tests to see if the end has been reached, if not keeps scraping
     while next_page is not None:
-        next_page = scrape_page(session, next_page, db_set)
+        print(online_uniques)
+        next_page = scrape_page(session, next_page, db_set, online_uniques, cur, con)
         time.sleep(1)
+
+    # convert into set for easier compare
+    online_set = set(online_uniques)
+    # TODO write function
+    data.delete_extra(db_set, online_set)
+    cur.close()
+    con.close()
 
 
 # searches a single page for the class data, returns the next page to be searched, returns None if last page
-def scrape_page(session, page, uniques):
+# also adds to the growing list of uniques numbers that the scraper has found through on_uniques
+def scrape_page(session, page, db_uniques, on_uniques, cur, con):
     # full catalog in main_page
-    print(uniques)
     main_page = session.get(page)
     page_soup = BeautifulSoup(main_page.content, "lxml")
 
@@ -51,8 +67,9 @@ def scrape_page(session, page, uniques):
             except KeyError:
                 try:
                     if col["data-th"] == "Unique":
-                        unique = col.get_text()
+                        unique = int(col.get_text())
                         unique_check = True
+                        on_uniques.append(unique)
                     if col["data-th"] == "Days":
                         day = col.get_text()
                     if col["data-th"] == "Hour":
@@ -69,7 +86,7 @@ def scrape_page(session, page, uniques):
         # called when a single class has all of its info and stores its info
         if unique_check is True:
             course = CourseInfo(unique, day, hour, room, professor, status, name)
-            course.store()
+            course.store(db_uniques, cur, con)
 
     # look for the next page to crawl
     try:
@@ -81,8 +98,8 @@ def scrape_page(session, page, uniques):
 
 # contains the info for the course
 class CourseInfo:
-    def __init__(self, unique, day, hour, room, professor, status, name):
-        self.unique = unique
+    def __init__(self, unique_num, day, hour, room, professor, status, name):
+        self.unique_num = unique_num
         self.day = day
         self.hour = hour
         self.room = room
@@ -91,10 +108,14 @@ class CourseInfo:
         self.name = name
 
     # stores data into SQL database
-    def store(self):
+    def store(self, db_uniques, cur, con):
+        # update the existing class, class already exists
+        if self.unique_num in db_uniques:
+            data.update_class(self, cur, con)
 
-
-        # TODO finish this method to store CourseInfo into a SQL database
+        # insert class, class doesn't exist yet
+        else:
+            data.insert_class(self, cur, con)
         return
 
 
