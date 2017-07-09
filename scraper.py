@@ -1,6 +1,9 @@
 import requests
 import time
+import data
 from bs4 import BeautifulSoup
+
+'''All functions in this file contribute to the scraping of data to insert into my own database'''
 
 
 # login info for course schedule
@@ -9,22 +12,26 @@ from bs4 import BeautifulSoup
 
 # fun fact UT has 402 pages in their course directory
 
+
 # scrapes the entire ut catalog
 def scrape_catalog(session):
+    # store current database values in a set for later reference to see if values have changed
+    db_set = data.current_unique_data()
 
     # root page to be scraped
     next_page = "https://utdirect.utexas.edu/apps/registrar/course_schedule/20179/results/?ccyys=20179&" \
-                 "search_type_main=UNIQUE&unique_number=&start_unique=00000&end_unique=99999"
+                "search_type_main=UNIQUE&unique_number=&start_unique=00000&end_unique=99999"
 
     # tests to see if the end has been reached, if not keeps scraping
     while next_page is not None:
-        next_page = scrape_page(session, next_page)
+        next_page = scrape_page(session, next_page, db_set)
         time.sleep(1)
 
 
 # searches a single page for the class data, returns the next page to be searched, returns None if last page
-def scrape_page(session, page):
+def scrape_page(session, page, uniques):
     # full catalog in main_page
+    print(uniques)
     main_page = session.get(page)
     page_soup = BeautifulSoup(main_page.content, "lxml")
 
@@ -62,7 +69,7 @@ def scrape_page(session, page):
         # called when a single class has all of its info and stores its info
         if unique_check is True:
             course = CourseInfo(unique, day, hour, room, professor, status, name)
-            print(unique+day+hour+room+professor+status+name)
+            course.store()
 
     # look for the next page to crawl
     try:
@@ -85,6 +92,8 @@ class CourseInfo:
 
     # stores data into SQL database
     def store(self):
+
+
         # TODO finish this method to store CourseInfo into a SQL database
         return
 
@@ -93,7 +102,6 @@ class CourseInfo:
 # takes in the log in info for the scraper account
 # returns the session that is already logged in
 def login(username, password):
-
     # for login post form
     login_info = [
         ("IDToken1", username),
