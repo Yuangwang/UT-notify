@@ -8,7 +8,6 @@ def main():
     scraper.scrape_catalog(scrape_session)
 
 
-    print(unique_in_db)
 
 
 if __name__ == "__main__":
