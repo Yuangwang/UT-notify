@@ -1,5 +1,3 @@
-import psycopg2
-
 '''All functions in this file contribute to interacting with the database'''
 
 
@@ -17,7 +15,6 @@ def current_unique_data(cur):
 
 
 # updates the existing class
-# TODO needs more testing still
 def update_class(course, cur, con):
     cur.execute("UPDATE course SET day=%s, hour=%s, room=%s, professor=%s, status=%s, name=%s WHERE id=%s",
                 (course.day, course.hour, course.room, course.professor, course.status, course.name, course.unique_num))
