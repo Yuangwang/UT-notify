@@ -1,4 +1,4 @@
-'''All functions in this file contribute to interacting with the database'''
+'''All functions in this file contribute to interacting with the courses database'''
 
 
 # goes into courses database and returns a set of the uniques that are in it
@@ -36,4 +36,5 @@ def delete_extra(db_set, online_set, cur, con):
     for course in extras:
         cur.execute("DELETE FROM course WHERE id=%s", (course,))
     con.commit()
+
 
