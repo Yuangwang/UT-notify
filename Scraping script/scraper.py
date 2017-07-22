@@ -7,9 +7,6 @@ from bs4 import BeautifulSoup
 '''All functions in this file contribute to the scraping of data to insert into my own database'''
 
 
-# login info for course schedule
-# username: br26346
-# password: example
 
 # fun fact UT has 402 pages in their course directory
 
@@ -18,6 +15,7 @@ from bs4 import BeautifulSoup
 def scrape_catalog(session):
     # opens connection and cursor for future use
     con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='example'")
+
     cur = con.cursor()
 
     # store current database values in a set for later reference to see if values have changed

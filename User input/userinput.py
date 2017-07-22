@@ -6,6 +6,7 @@ def main():
     mode = ""
 
     con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='example'")
+
     cur = con.cursor()
 
     while mode != "watch" and mode != "unwatch":

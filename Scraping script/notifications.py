@@ -10,6 +10,7 @@ def notify_user():
 
     # opens connection and cursor for future use
     con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='example'")
+
     cur = con.cursor()
 
     # pending_notifs is a list of tuples in the format ('phonenumber', uniquenumber, 'status', 'notified')
