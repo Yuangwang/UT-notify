@@ -1,15 +1,20 @@
 import psycopg2
+import os
 from twilio.rest import Client
 
 
 def notify_user():
 
     # twilio api creds
-    account_sid = "example"
-    auth_token = "example"
+    account_sid = os.environ.get("twilio_sid")
+    auth_token = os.environ.get("twilio_auth_token")
 
     # opens connection and cursor for future use
-    con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='example'")
+    db_name = os.environ.get("db_name")
+    user = os.environ.get("db_user")
+    host = os.environ.get("db_host")
+    password = os.environ.get("db_password")
+    con = psycopg2.connect("dbname=%s user=%s host=%s password=%s" % (db_name,user,host,password))
 
     cur = con.cursor()
 

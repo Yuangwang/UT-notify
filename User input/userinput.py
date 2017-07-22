@@ -1,11 +1,16 @@
 import psycopg2
+import config
 
 
 # stores user phone number and user classes to watch into database or deletes their info
 def main():
     mode = ""
 
-    con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='example'")
+    db_name = config.database_info["db_name"]
+    db_user = config.database_info["db_user"]
+    db_host = config.database_info["db_host"]
+    db_password = config.database_info["db_password"]
+    con = psycopg2.connect("dbname=%s user=%s host=%s password=%s sslmode='require'" % (db_name,db_user,db_host,db_password))
 
     cur = con.cursor()
 

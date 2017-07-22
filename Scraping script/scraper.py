@@ -2,19 +2,22 @@ import requests
 import time
 import data
 import psycopg2
+import os
 from bs4 import BeautifulSoup
 
 '''All functions in this file contribute to the scraping of data to insert into my own database'''
 
 
-
 # fun fact UT has 402 pages in their course directory
-
 
 # scrapes the entire ut catalog
 def scrape_catalog(session):
     # opens connection and cursor for future use
-    con = psycopg2.connect("dbname='myBot' user='postgres' host='localhost' password='example'")
+    db_name = os.environ.get("db_name")
+    user = os.environ.get("db_user")
+    host = os.environ.get("db_host")
+    password = os.environ.get("db_password")
+    con = psycopg2.connect("dbname=%s user=%s host=%s password=%s" % (db_name,user,host,password))
 
     cur = con.cursor()
 
