@@ -28,7 +28,7 @@ def scrape_catalog(session):
     online_uniques = []
 
     # root page to be scraped
-    next_page = "https://utdirect.utexas.edu/apps/registrar/course_schedule/20189/results/?ccyys=20189&" \
+    next_page = "https://utdirect.utexas.edu/apps/registrar/course_schedule/20189/results/?ccyys=20199&" \
                 "search_type_main=UNIQUE&unique_number=&start_unique=00000&end_unique=99999"
 
     # tests to see if the end has been reached, if not keeps scraping
@@ -94,7 +94,7 @@ def scrape_page(session, page, db_uniques, on_uniques, cur, con):
     # look for the next page to crawl
     try:
         test = page_soup.find("a", {"id": "next_nav_link"})["href"]
-        return "https://utdirect.utexas.edu/apps/registrar/course_schedule/20189/results/" + test
+        return "https://utdirect.utexas.edu/apps/registrar/course_schedule/20199/results/" + test
     except TypeError:
         return None
 
@@ -133,7 +133,7 @@ def login(username, password):
         ("login_uri", "/login/cdcservlet"),
         ("login_method", "GET"),
         ("IDButton", "Log In"),
-        ("goto", "https://utdirect.utexas.edu:443/apps/registrar/course_schedule/20189"),
+        ("goto", "https://utdirect.utexas.edu:443/apps/registrar/course_schedule/20199"),
         ("encoded", "false"),
         ("gx_charset", "UTF-8"),
     ]
@@ -146,7 +146,7 @@ def login(username, password):
     time.sleep(1)
 
     # page gets redirected, need to input LARES value to continue, no clue what LARES is
-    lares_page = scrape_session.get("https://utdirect.utexas.edu/apps/registrar/course_schedule/20189")
+    lares_page = scrape_session.get("https://utdirect.utexas.edu/apps/registrar/course_schedule/20199")
     time.sleep(1)
 
     # goes through the page and finds the LARES value to input
@@ -157,7 +157,7 @@ def login(username, password):
     ]
 
     # submits the LARES value, this time going into the correct path
-    scrape_session.post("https://utdirect.utexas.edu/apps/registrar/course_schedule/20189", data=lares_data)
+    scrape_session.post("https://utdirect.utexas.edu/apps/registrar/course_schedule/20199", data=lares_data)
     time.sleep(1)
 
     # returns the session for future use
