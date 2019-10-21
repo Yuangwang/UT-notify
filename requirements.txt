@@ -15,4 +15,4 @@ requests==2.18.1
 scraper==0.1.0
 six==1.10.0
 twilio==6.4.3
-urllib3==1.21.1
+urllib3==1.24.2
