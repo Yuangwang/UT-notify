@@ -15,3 +15,6 @@ UT austin account
 Heroku account
 
 Hosting Database
+
+## Overall Flow
+[![Capture.png](https://i.postimg.cc/BZmJhnX1/Capture.png)](https://postimg.cc/bd2Xr80z)
